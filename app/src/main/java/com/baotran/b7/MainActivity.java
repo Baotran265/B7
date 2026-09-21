@@ -1,54 +1,50 @@
 package com.baotran.b7;
 
+import android.content.Intent;
 import android.os.Bundle;
-import android.widget.Button;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    RecyclerView recyclerView;
-    Button btLoad;
-    List countrylist = new ArrayList();
+    private RecyclerView recyclerView;
+    private ArrayList<Article> articleList;
+    private ArticleAdapter articleAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
-        countrylist.add("Vietnam");
-        countrylist.add("US");
-        countrylist.add("China");
-        countrylist.add("Japan");
-        countrylist.add("Korea");
-        countrylist.add("Thailand");
 
         recyclerView = findViewById(R.id.recyclerView);
-        btLoad = findViewById(R.id.btLoad);
-        btLoad.setOnClickListener(v ->{
-            MyAdapter myApdapter = new MyAdapter(v.getContext(),countrylist);
-            recyclerView.setLayoutManager(
-                    new LinearLayoutManager(this)
-            );
-            recyclerView.setAdapter(myApdapter);
-        });
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
+        // Nhận lại danh sách bài viết từ DetailActivity gửi về (nếu có)
+        Intent intent = getIntent();
+        if (intent != null && intent.hasExtra("ARTICLE_LIST")) {
+            articleList = intent.getParcelableArrayListExtra("ARTICLE_LIST");
+        }
 
+        // Nếu khởi chạy ứng dụng lần đầu tiên -> Tạo dữ liệu mẫu
+        if (articleList == null) {
+            articleList = new ArrayList<>();
+            articleList.add(new Article("Hoa hướng dương",
+                    "Bông hoa hướng dương vươn mình rạng rỡ giữa cánh đồng, thu trọn nguồn năng lượng ấm áp cùng sắc vàng rực rỡ của bầu trời lúc chiều tà",
+                    R.drawable.anh1, 0));
+            articleList.add(new Article("Hoa hồng",
+                    "Những cành hồng đỏ đọng sương khẽ tựa lên nền vải trắng, bắt trọn vệt nắng ấm áp dịu dàng",
+                    R.drawable.ic_launcher_background, 0));
+            articleList.add(new Article("Hoa linh lan",
+                    "Những đóa linh lan xanh dịu đọng trọn từng giọt sương long lanh như pha lê, tỏa ra nét đẹp tinh khôi và bình yên giữa nền đêm tĩnh lặng",
+                    R.drawable.ic_launcher_background, 0));
+        }
 
-
+        // Khởi tạo Adapter theo đúng form gốc Mobile(5) của Thầy
+        articleAdapter = new ArticleAdapter(this, articleList);
+        recyclerView.setAdapter(articleAdapter);
     }
 }
